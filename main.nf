@@ -41,6 +41,7 @@ def helpMessage() {
       --lca_db [file]                 The directory where LCA databases will be stored. If empty, will be automatically downloaded. Default: current directory (.)
       --lca_mapping [str]             Type of  accesion to TAXID mapping to use (nucl|prot|test). Default:  nucl
       --lca_tree  [file]              Taxonomic tree to use for LCA, in newick format.
+      --update_ete [bool]             Update ete3 taxonomy database.
       -name [str]                     Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic
 
     AWSBatch options:
@@ -327,6 +328,27 @@ if (params.lca_tree){
     .set {lca_tree_ch}
 }
 
+
+
+process prep_etetoolkit {
+
+label 'process_low'
+
+output:
+    file("db_update_status.txt") into ete_taxo_db
+
+script:
+    if  (params.update_ete){
+        update_ete = "--update"
+    } else {
+        update_ete = ""
+    }
+    """
+    update_ete_taxonomy.py $update_ete
+    """
+}
+
+
 process sam2lca {
     tag "$name"
 
@@ -337,6 +359,7 @@ process sam2lca {
     input:
         set val(name), file(bam) from aligned_bam
         file(tree) from lca_tree_ch
+        file(db_check) from ete_taxo_db.collect()
     output:
         set val(name), file("*.sam2lca.*") into sam2lca_result
     script:
