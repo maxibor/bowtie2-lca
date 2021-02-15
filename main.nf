@@ -27,6 +27,7 @@ def helpMessage() {
 
     Options:
       --single_end [bool]             Specifies that the input is single-end reads
+      --collapse [bool]               Merge forward and reverse reads if overlapping
 
     References                        If not specified in the configuration file or you wish to overwrite any of the references
       --fasta [file]                  Path to fasta reference(s)
