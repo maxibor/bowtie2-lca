@@ -309,7 +309,7 @@ process bowtie2 {
             """
             bowtie2 -x $db_name -U $reads --very-sensitive -a -N 1 --threads ${task.cpus} -S ${name}.sam
             samtools view ${name}.sam -h -F 4 -b -@ ${task.cpus} -o ${name}.bam
-            samtools sort ${name}.sam -@ ${task.cpus} -o ${name}.sorted.bam
+            samtools sort ${name}.bam -@ ${task.cpus} -o ${name}.sorted.bam
             """
         } else {
             """
