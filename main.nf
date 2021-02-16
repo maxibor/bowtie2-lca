@@ -331,21 +331,22 @@ if (params.lca_tree){
 
 
 
-process prep_etetoolkit {
+process prep_lca_databases {
 
 label 'process_low'
 
 output:
-    file("db_update_status.txt") into ete_taxo_db
+    file("db_updated.txt") into ete_taxo_db
 
 script:
     if  (params.update_ete){
-        update_ete = "--update"
+        update_ete = "--ncbi"
     } else {
         update_ete = ""
     }
     """
-    update_ete_taxonomy.py $update_ete
+    sam2lca -d ${params.lca_db} -m ${params.lca_mapping} update-db $update_ete
+    touch db_updated.txt
     """
 }
 
@@ -371,7 +372,7 @@ process sam2lca {
         }
         """
         samtools index $bam
-        sam2lca -d ${params.lca_db} -p ${task.cpus} -m ${params.lca_mapping} $tree_opt -o ${name}.sam2lca $bam
+        sam2lca -d ${params.lca_db} -m ${params.lca_mapping} analyze -p ${task.cpus} $tree_opt -o ${name}.sam2lca $bam
         """
     
 }

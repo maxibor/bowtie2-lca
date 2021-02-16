@@ -17,4 +17,4 @@ dependencies:
   - bioconda::bowtie2
   - bioconda::samtools
   - bioconda::adapterremoval
-  - maxibor::sam2lca=0.2.1
+  - maxibor::sam2lca=0.3
