@@ -287,7 +287,6 @@ if (params.fasta && !params.bt_db){
     Channel.fromPath(params.bt_db)
     .map{it -> file(it).simpleName}
     .first()
-    .view()
     .set{ bt_db_name }
 }
 
@@ -326,9 +325,12 @@ if (params.lca_tree){
     .first()
     .set {lca_tree_ch}
 } else {
-    Channel.empty()
+    Channel.fromPath(params.dummy_file)
+    .first()
     .set {lca_tree_ch}
 }
+
+// aligned_bam.view().set{aligned_bam}
 
 if (params.update_lca) {
     process prep_lca_databases {
@@ -350,9 +352,13 @@ if (params.update_lca) {
         """
     }
 } else {
-    Channel.empty()
+    Channel.fromPath(params.dummy_file)
+    .first()
     .set {ete_taxo_db}
 }
+
+
+aligned_bam.merge(lca_tree_ch, ete_taxo_db).view().set {sam2lca_ch}
 
 
 
@@ -365,9 +371,7 @@ process sam2lca {
     publishDir "${params.outdir}/sam2lca", mode: params.publish_dir_mode
 
     input:
-        set val(name), file(bam) from aligned_bam
-        file(tree) from lca_tree_ch
-        file(db_check) from ete_taxo_db.collect()
+        tuple val(name), file(bam), file(tree), file(db_check) from sam2lca_ch
     output:
         set val(name), file("*.sam2lca.*") into sam2lca_result
     script:
