@@ -357,8 +357,19 @@ if (params.update_lca) {
     .set {ete_taxo_db}
 }
 
+process check_ete_db {
+    label 'process_low'
 
-aligned_bam.merge(lca_tree_ch, ete_taxo_db).view().set {sam2lca_ch}
+    output:
+        file("db_update_status.txt") into ete_checked
+    script:
+        """
+        update_ete_taxonomy.py 
+        """
+}
+
+
+aligned_bam.merge(lca_tree_ch, ete_taxo_db, ete_checked).view().set {sam2lca_ch}
 
 
 
@@ -371,7 +382,7 @@ process sam2lca {
     publishDir "${params.outdir}/sam2lca", mode: params.publish_dir_mode
 
     input:
-        tuple val(name), file(bam), file(tree), file(db_check) from sam2lca_ch
+        tuple val(name), file(bam), file(tree), file(db_check), file(ete_check) from sam2lca_ch
     output:
         set val(name), file("*.sam2lca.*") into sam2lca_result
     script:
