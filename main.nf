@@ -325,7 +325,7 @@ if (params.lca_tree){
     .first()
     .set {lca_tree_ch}
 } else {
-    Channel.fromPath(params.dummy_file)
+    Channel.fromPath(params.dummy1)
     .first()
     .set {lca_tree_ch}
 }
@@ -352,7 +352,7 @@ if (params.update_lca) {
         """
     }
 } else {
-    Channel.fromPath(params.dummy_file)
+    Channel.fromPath(params.dummy2)
     .first()
     .set {ete_taxo_db}
 }
