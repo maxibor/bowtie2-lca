@@ -43,6 +43,7 @@ def helpMessage() {
       --lca_mapping [str]             Type of  accesion to TAXID mapping to use (nucl|prot|test). Default:  nucl
       --lca_tree  [file]              Taxonomic tree to use for LCA, in newick format.
       --update_ete [bool]             Update ete3 taxonomy database.
+      --update_lca [bool]             Update LCA acc2tax mapping database
       -name [str]                     Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic
 
     AWSBatch options:
@@ -329,26 +330,31 @@ if (params.lca_tree){
     .set {lca_tree_ch}
 }
 
+if (params.update_lca) {
+    process prep_lca_databases {
 
+    label 'process_low'
 
-process prep_lca_databases {
+    output:
+        file("db_updated.txt") into ete_taxo_db
 
-label 'process_low'
-
-output:
-    file("db_updated.txt") into ete_taxo_db
-
-script:
-    if  (params.update_ete){
-        update_ete = "--ncbi"
-    } else {
-        update_ete = ""
+    script:
+        if  (params.update_ete){
+            update_ete = "--ncbi"
+        } else {
+            update_ete = ""
+        }
+        """
+        sam2lca -d ${params.lca_db} -m ${params.lca_mapping} update-db $update_ete
+        touch db_updated.txt
+        """
     }
-    """
-    sam2lca -d ${params.lca_db} -m ${params.lca_mapping} update-db $update_ete
-    touch db_updated.txt
-    """
+} else {
+    Channel.empty()
+    .set {ete_taxo_db}
 }
+
+
 
 
 process sam2lca {
