@@ -364,7 +364,7 @@ process check_ete_db {
         file("db_update_status.txt") into ete_checked
     script:
         """
-        update_ete_taxonomy.py 
+        update_ete_taxonomy.py -u
         """
 }
 
